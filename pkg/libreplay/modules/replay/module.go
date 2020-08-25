@@ -20,9 +20,9 @@ func (r Replay) Routes() []libreplay.Route {
 	return []libreplay.Route{
 		// Add route definitions here
 		{
-			Path:        "/",
+			Path:        "*",
 			Method:      "*",
-			CurlExample: "curl http://<addr>/<version>/<namespace>/routes",
+			CurlExample: "curl http://<addr>/<path>",
 		},
 	}
 }

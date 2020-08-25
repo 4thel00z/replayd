@@ -25,18 +25,12 @@ func NewApp(addr string, config Config, verbose, debug bool, modules ...Module) 
 	}
 	router := &typhon.Router{}
 
-	for _, module := range modules {
-		for i, route := range module.Routes() {
-			path := generatePath(module, route)
-			handler := module.HandlerById(i)
-			if handler == nil {
-				handler = Default404Handler
-			}
-			router.Register(strings.ToUpper(route.Method), path, handler(app))
-		}
-	}
+
 
 	app.Router = router
+	for _, module := range modules {
+		app.Register(module)
+	}
 
 	return app
 }
@@ -93,11 +87,14 @@ func (app App) Register(module Module) {
 func generatePath(module Module, route Route) string {
 	routeParts := CleanStrings([]string{module.Version(), module.Namespace(), route.Path})
 
-	if len(routeParts) == 1 {
+	switch len(routeParts) {
+	case 0:
+		return ""
+	case 1:
 		return routeParts[0]
+	default:
+		return "/" + strings.Join(routeParts, "/")
 	}
-
-	return "/" + strings.Join(routeParts, "/")
 }
 
 func (app App) PrintConfig() {
