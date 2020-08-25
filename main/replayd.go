@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"flag"
+	"github.com/4thel00z/replayd"
 	"github.com/4thel00z/replayd/pkg/libreplay"
 	"github.com/4thel00z/replayd/pkg/libreplay/modules/debug"
 	"github.com/4thel00z/replayd/pkg/libreplay/modules/replay"
@@ -36,6 +37,7 @@ var (
 )
 
 func main() {
+	replayd.Init()
 	flag.Parse()
 
 	log.Println("\n", aurora.Magenta(banner), "\n")
