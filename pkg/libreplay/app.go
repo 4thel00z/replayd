@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/monzo/typhon"
+	uuid "github.com/nu7hatch/gouuid"
 	"log"
+	"path"
 	"strings"
 )
 
@@ -24,8 +26,6 @@ func NewApp(addr string, config Config, verbose, debug bool, modules ...Module) 
 		Debug:   debug,
 	}
 	router := &typhon.Router{}
-
-
 
 	app.Router = router
 	for _, module := range modules {
@@ -82,6 +82,14 @@ func (app App) Register(module Module) {
 		app.Router.Register(strings.ToUpper(route.Method), path, handler(app))
 	}
 
+}
+
+func (app App) GenerateUniquePath() (string, error) {
+	v4, err := uuid.NewV4()
+	if err != nil {
+		return "", err
+	}
+	return path.Join(app.Config.Path, v4.String()), nil
 }
 
 func generatePath(module Module, route Route) string {
