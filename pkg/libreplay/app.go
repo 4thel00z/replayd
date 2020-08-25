@@ -91,7 +91,13 @@ func (app App) Register(module Module) {
 }
 
 func generatePath(module Module, route Route) string {
-	return "/" + strings.Join([]string{module.Version(), module.Namespace(), route.Path}, "/")
+	routeParts := CleanStrings([]string{module.Version(), module.Namespace(), route.Path})
+
+	if len(routeParts) == 1 {
+		return routeParts[0]
+	}
+
+	return "/" + strings.Join(routeParts, "/")
 }
 
 func (app App) PrintConfig() {
