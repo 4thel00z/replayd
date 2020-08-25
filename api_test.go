@@ -3,6 +3,7 @@ package replayd
 import (
 	"bytes"
 	"fmt"
+	"github.com/4thel00z/replayd/pkg/libreplay"
 	"github.com/stretchr/testify/require"
 	"net/http"
 	"strings"
@@ -14,23 +15,12 @@ const jsonBytes = `{
 	"non_trivial_stuffz": 1337
 }`
 
-type MockFile string
-
-func (m *MockFile) WriteString(s string) (n int, err error) {
-	*m = MockFile(string(*m) + s)
-	return len(s), nil
-}
-
-func (m MockFile) Close() error {
-	return nil
-}
-
 func TestSaveRequestAndRestore(t *testing.T) {
 	originalRequest, err := http.NewRequest(http.MethodPost, "https://ransomware.host", bytes.NewReader([]byte(jsonBytes)))
 	if err != nil {
 		t.Error(err)
 	}
-	file := MockFile("")
+	file := libreplay.MockFile("")
 	err = SaveRequest(*originalRequest, &file)
 	if err != nil {
 		t.Error(err)

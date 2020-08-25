@@ -7,7 +7,7 @@ import (
 )
 
 func OpenWritableFile(path string) (*os.File, error) {
-	file, err := os.OpenFile(path, os.O_CREATE, 0555)
+	file, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0660)
 	if err != nil {
 		return nil, err
 	}
@@ -38,4 +38,15 @@ func CleanStrings(s []string) []string {
 		}
 	}
 	return r
+}
+
+type MockFile string
+
+func (m *MockFile) WriteString(s string) (n int, err error) {
+	*m = MockFile(string(*m) + s)
+	return len(s), nil
+}
+
+func (m MockFile) Close() error {
+	return nil
 }

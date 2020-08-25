@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/gob"
+	"fmt"
 	"github.com/4thel00z/replayd/pkg/libreplay"
 	"io"
 	"io/ioutil"
@@ -43,32 +44,11 @@ func SaveRequest(req http.Request, stringWriterCloser libreplay.StringWriterClos
 		_ = stringWriterCloser.Close()
 	}()
 
-	body, err := ioutil.ReadAll(req.Body)
-
-	defer func() {
-		_ = req.Body.Close()
-	}()
-
+	request, err := ConvertRequest(req)
 	if err != nil {
 		return err
 	}
-
-	// We do this, so we can use SaveRequest in a middleware and relay the request
-	req.Body = ioutil.NopCloser(bytes.NewBuffer(body))
-
-	err = req.ParseForm()
-	if err != nil {
-		return err
-	}
-
-	payload, err := Serialize(libreplay.Request{
-		HTTPVersion: req.Proto,
-		Host:        req.Host,
-		Method:      req.Method,
-		Headers:     req.Header,
-		Body:        body,
-		Form:        req.Form,
-	})
+	payload, err := Serialize(request)
 
 	if err != nil {
 		return err
@@ -83,7 +63,35 @@ func SaveRequest(req http.Request, stringWriterCloser libreplay.StringWriterClos
 	return nil
 }
 
+func ConvertRequest(req http.Request) (libreplay.Request, error) {
+	body, err := ioutil.ReadAll(req.Body)
 
+	defer func() {
+		_ = req.Body.Close()
+	}()
+
+	if err != nil {
+		return libreplay.Request{}, err
+	}
+	// We do this, so we can use SaveRequest in a middleware and relay the request
+	req.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+
+	err = req.ParseForm()
+	if err != nil {
+		return libreplay.Request{}, err
+	}
+
+	request := libreplay.Request{
+		HTTPVersion: req.Proto,
+		Host:        req.Host,
+		Method:      req.Method,
+		Headers:     req.Header,
+		Body:        body,
+		Form:        req.Form,
+	}
+
+	return request, nil
+}
 
 func RestoreRequest(reader io.Reader) (libreplay.Request, error) {
 	body, err := ioutil.ReadAll(reader)
@@ -95,5 +103,7 @@ func RestoreRequest(reader io.Reader) (libreplay.Request, error) {
 }
 
 func Init() {
+	fmt.Println("gob.Register(libreplay.Request{})")
 	gob.Register(libreplay.Request{})
+	fmt.Println("gob.Register(libreplay.Request{}) done..")
 }
