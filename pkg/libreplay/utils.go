@@ -29,3 +29,13 @@ func VerifyRequest(r *typhon.Request) error {
 	}
 	return nil
 }
+
+func CleanStrings(s []string) []string {
+	var r []string
+	for _, str := range s {
+		if str != "" {
+			r = append(r, str)
+		}
+	}
+	return r
+}
