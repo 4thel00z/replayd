@@ -40,7 +40,8 @@ func ParseConfig(path string) (config Config, err error) {
 
 type Config struct {
 	//TODO: add more fields here if you want to make the app more configurable
-	Verbose bool `json:"verbose"`
+	Verbose bool   `json:"verbose"`
+	Path    string `json:"path"`
 }
 
 type Service func(app App) typhon.Service
