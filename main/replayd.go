@@ -6,7 +6,7 @@ import (
 	"github.com/4thel00z/replayd"
 	"github.com/4thel00z/replayd/pkg/libreplay"
 	"github.com/4thel00z/replayd/pkg/libreplay/modules/debug"
-	"github.com/4thel00z/replayd/pkg/libreplay/modules/replay"
+	"github.com/4thel00z/replayd/pkg/libreplay/modules/persist"
 	"github.com/logrusorgru/aurora"
 	"github.com/monzo/typhon"
 	"log"
@@ -48,11 +48,16 @@ func main() {
 		log.Fatalf("could not parse the configuration because of: %s", err.Error())
 	}
 	addr := *host + ":" + strconv.Itoa(*port)
-	app := libreplay.NewApp(addr, config, *verbose, *debugFlag, debug.Module, replay.Module)
+	app := libreplay.NewApp(addr, config, *verbose, *debugFlag, debug.Module, persist.Module)
 
 	svc := app.Router.Serve().
 		Filter(typhon.ErrorFilter).
 		Filter(typhon.H2cFilter)
+
+	if app.Debug {
+		svc = svc.Filter(libreplay.RequestLogger)
+	}
+
 	srv, err := typhon.Listen(svc, addr)
 	if err != nil {
 		panic(err)

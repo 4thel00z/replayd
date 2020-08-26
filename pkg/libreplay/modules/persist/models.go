@@ -1,4 +1,4 @@
-package replay
+package persist
 
 type GenericResponse struct {
 	Message interface{} `json:"message"`

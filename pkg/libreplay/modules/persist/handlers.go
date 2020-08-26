@@ -1,4 +1,4 @@
-package replay
+package persist
 
 import (
 	"fmt"
@@ -10,10 +10,10 @@ import (
 func ReplayHandler(app libreplay.App) typhon.Service {
 	return func(req typhon.Request) typhon.Response {
 
-		request, err := replayd.ConvertRequest(req.Request)
+		request, err := replayd.ToInternalRequest(req.Request)
 
 		if err != nil {
-			response := req.Response("replayd.ConvertRequest is broken")
+			response := req.Response("replayd.ToInternalRequest is broken")
 			response.StatusCode = 503
 			return response
 		}

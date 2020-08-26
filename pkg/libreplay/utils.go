@@ -23,13 +23,6 @@ func Default404Handler(app App) typhon.Service {
 	}
 }
 
-func VerifyRequest(r *typhon.Request) error {
-	if _, ok := r.MultipartForm.File["audio"]; !ok || len(r.MultipartForm.File["audio"]) < 1 {
-		return fmt.Errorf("the field audio is absent")
-	}
-	return nil
-}
-
 func CleanStrings(s []string) []string {
 	var r []string
 	for _, str := range s {
@@ -49,4 +42,9 @@ func (m *MockFile) WriteString(s string) (n int, err error) {
 
 func (m MockFile) Close() error {
 	return nil
+}
+
+func RequestLogger(request typhon.Request, service typhon.Service) typhon.Response {
+	fmt.Printf("Request: %+v\n", request)
+	return service(request)
 }

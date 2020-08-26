@@ -11,7 +11,7 @@ import (
 
 type Request struct {
 	HTTPVersion string      `json:"http_version"`
-	Host        string      `json:"host"`
+	URL         string      `json:"url"`
 	Method      string      `json:"method"`
 	Headers     http.Header `json:"headers"`
 	Body        []byte      `json:"body"`

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/base64"
 	"encoding/gob"
-	"fmt"
 	"github.com/4thel00z/replayd/pkg/libreplay"
 	"io"
 	"io/ioutil"
@@ -44,7 +43,7 @@ func SaveRequest(req http.Request, stringWriterCloser libreplay.StringWriterClos
 		_ = stringWriterCloser.Close()
 	}()
 
-	request, err := ConvertRequest(req)
+	request, err := ToInternalRequest(req)
 	if err != nil {
 		return err
 	}
@@ -63,7 +62,7 @@ func SaveRequest(req http.Request, stringWriterCloser libreplay.StringWriterClos
 	return nil
 }
 
-func ConvertRequest(req http.Request) (libreplay.Request, error) {
+func ToInternalRequest(req http.Request) (libreplay.Request, error) {
 	body, err := ioutil.ReadAll(req.Body)
 
 	defer func() {
@@ -83,12 +82,25 @@ func ConvertRequest(req http.Request) (libreplay.Request, error) {
 
 	request := libreplay.Request{
 		HTTPVersion: req.Proto,
-		Host:        req.Host,
+		URL:         req.RequestURI	,
 		Method:      req.Method,
 		Headers:     req.Header,
 		Body:        body,
 		Form:        req.Form,
 	}
+
+	return request, nil
+}
+
+func ToHTTPRequest(req libreplay.Request) (*http.Request, error) {
+	request, err := http.NewRequest(req.Method, req.URL, bytes.NewReader(req.Body))
+	if err != nil {
+		return nil, err
+	}
+
+	request.Header = req.Headers
+	request.Form = req.Form
+	request.Proto = req.HTTPVersion
 
 	return request, nil
 }
@@ -103,7 +115,13 @@ func RestoreRequest(reader io.Reader) (libreplay.Request, error) {
 }
 
 func Init() {
-	fmt.Println("gob.Register(libreplay.Request{})")
 	gob.Register(libreplay.Request{})
-	fmt.Println("gob.Register(libreplay.Request{}) done..")
+}
+
+func Invoke(request libreplay.Request) (*http.Response, error) {
+	httpRequest, err := ToHTTPRequest(request)
+	if err != nil {
+		return nil, err
+	}
+	return http.DefaultClient.Do(httpRequest)
 }

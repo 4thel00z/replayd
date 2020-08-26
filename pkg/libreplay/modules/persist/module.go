@@ -1,4 +1,4 @@
-package replay
+package persist
 
 import "github.com/4thel00z/replayd/pkg/libreplay"
 
