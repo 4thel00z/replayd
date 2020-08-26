@@ -29,9 +29,11 @@ dep: ## Get the dependencies
 
 build: dep ## Build the binary file
 	@env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o build/replayd main/replayd.go
+	@env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o build/replay main/replay.go
 
 build-win: dep ## Build the binary file
 	@env CGO_ENABLED=0 GOARCH=386 GOOS=windows go build -o build/replayd.exe main/replayd.go
+	@env CGO_ENABLED=0 GOARCH=386 GOOS=windows go build -o build/replay.exe main/replay.go
 
 run: build
 	@build/replayd $(ARGS)
