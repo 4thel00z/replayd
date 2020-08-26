@@ -32,7 +32,7 @@ func TestSaveRequestAndRestore(t *testing.T) {
 
 	require.Equal(t, strings.ToLower(http.MethodPost), strings.ToLower(request.Method))
 	require.Equal(t, []byte(jsonBytes), request.Body)
-	require.Equal(t, "ransomware.host", request.Host)
+	require.Equal(t, "ransomware.host", request.URL)
 
 	fmt.Println(request)
 }
