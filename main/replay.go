@@ -44,6 +44,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Printf("%q", dump)
+	fmt.Printf("%+v", dump)
 
 }
